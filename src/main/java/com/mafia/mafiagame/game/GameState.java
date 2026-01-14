@@ -1,0 +1,8 @@
+package com.mafia.mafiagame.game;
+
+public enum GameState {
+    LOBBY,
+    NIGHT,
+    DAY,
+    FINISHED
+}
