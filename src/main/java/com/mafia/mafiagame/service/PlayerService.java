@@ -1,6 +1,7 @@
 package com.mafia.mafiagame.service;
 
 import com.mafia.mafiagame.game.GameSession;
+import com.mafia.mafiagame.game.LobbyManager;
 import com.mafia.mafiagame.model.Player;
 import com.mafia.mafiagame.repository.PlayerRepository;
 import com.mafia.mafiagame.user.User;
@@ -8,24 +9,36 @@ import com.mafia.mafiagame.user.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class PlayerService {
 
     private final PlayerRepository playerRepo;
     private final UserRepository userRepo;
-    private final GameSession session;
+    private final LobbyManager lobbyManager;
 
     public PlayerService(PlayerRepository playerRepo,
                          UserRepository userRepo,
-                         GameSession session) {
+                         LobbyManager lobbyManager) {
         this.playerRepo = playerRepo;
         this.userRepo = userRepo;
-        this.session = session;
+        this.lobbyManager = lobbyManager;
     }
 
+    public GameSession getCurrentSession() {
+        Player player = getCurrentPlayer();
+        if (player.getLobbyId() == null) {
+            throw new RuntimeException("Player is not in a lobby");
+        }
+        GameSession session = lobbyManager.getSession(player.getLobbyId());
+        if (session == null) {
+            throw new RuntimeException("Lobby session not found");
+        }
+        return session;
+    }
 
-    public Player joinGame() {
-
+    public Player joinGame(String lobbyId) {
         String username = SecurityContextHolder
                 .getContext()
                 .getAuthentication()
@@ -34,15 +47,29 @@ public class PlayerService {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Player player = playerRepo.findByUserId(user.getId())
-                .orElseGet(() -> {
-                    Player p = new Player(user.getId(), username);
-                    return playerRepo.save(p);
-                });
+        Optional<Player> existingPlayer = playerRepo.findByUserId(user.getId());
+        Player player;
+        if (existingPlayer.isPresent()) {
+            player = existingPlayer.get();
+            // If they are in another lobby, leave it first
+            if (player.getLobbyId() != null && !player.getLobbyId().equals(lobbyId)) {
+                leaveGame();
+            }
+            player.setLobbyId(lobbyId);
+        } else {
+            player = new Player(user.getId(), username);
+            player.setLobbyId(lobbyId);
+        }
 
         // 🔥 CRITICAL FIX: host is SESSION-based, reset DB leak
         player.setHost(false);
         playerRepo.save(player);
+
+        // Fetch session
+        GameSession session = lobbyManager.getSession(lobbyId);
+        if (session == null) {
+            throw new RuntimeException("Lobby not found");
+        }
 
         // Join session
         session.join(player);
@@ -57,8 +84,17 @@ public class PlayerService {
     }
 
     public void leaveGame() {
-
         Player leaving = getCurrentPlayer();
+        String lobbyId = leaving.getLobbyId();
+        if (lobbyId == null) {
+            throw new RuntimeException("You are not in a lobby");
+        }
+
+        GameSession session = lobbyManager.getSession(lobbyId);
+        if (session == null) {
+            playerRepo.delete(leaving);
+            return;
+        }
 
         boolean wasInSession = session.getPlayers().stream()
                 .anyMatch(p -> p.getUserId().equals(leaving.getUserId()));
@@ -72,9 +108,8 @@ public class PlayerService {
         // ✅ Let GameSession handle removal
         session.removeByUserId(leaving.getUserId());
 
-        // Clear host flag on leaving player
-        leaving.setHost(false);
-        playerRepo.save(leaving);
+        // Delete the player record from database
+        playerRepo.delete(leaving);
 
         // Reassign host if needed
         if (wasHost && !session.getPlayers().isEmpty()) {
@@ -82,14 +117,14 @@ public class PlayerService {
             newHost.setHost(true);
             playerRepo.save(newHost);
         }
+
+        // Clean up empty lobby
+        if (session.getPlayers().isEmpty()) {
+            lobbyManager.removeLobby(lobbyId);
+        }
     }
 
-
-
-
-
     public Player getCurrentPlayer() {
-
         String username = SecurityContextHolder
                 .getContext()
                 .getAuthentication()

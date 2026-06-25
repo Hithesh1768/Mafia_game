@@ -20,12 +20,22 @@ public class Player {
 
     private boolean host;
 
+    private String lobbyId;
+
     public boolean isHost() {
         return host;
     }
 
     public void setHost(boolean host) {
         this.host = host;
+    }
+
+    public String getLobbyId() {
+        return lobbyId;
+    }
+
+    public void setLobbyId(String lobbyId) {
+        this.lobbyId = lobbyId;
     }
 
     public Player() {}

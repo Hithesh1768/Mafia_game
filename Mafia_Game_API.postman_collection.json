@@ -1,0 +1,891 @@
+{
+	"info": {
+		"_postman_id": "b3e0c061-ec85-48b9-bb20-1b774d0812af",
+		"name": "Mafia Game API - 2 Lobbies Parallel Flow",
+		"description": "Postman collection to verify that 2 game lobbies can run simultaneously and independently without interfering.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Setup Users",
+			"item": [
+				{
+					"name": "Register Player 1 (Alice)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"alice\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Player 2 (Bob)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"bob\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Player 3 (Charlie)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"charlie\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Player 4 (Dave)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"dave\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Player 5 (Eve)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"eve\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Player 6 (Frank)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"frank\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Alice (Player 1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.response.text();",
+									"pm.environment.set(\"alice_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"alice\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Bob (Player 2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.response.text();",
+									"pm.environment.set(\"bob_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"bob\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Charlie (Player 3)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.response.text();",
+									"pm.environment.set(\"charlie_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"charlie\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Dave (Player 4)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.response.text();",
+									"pm.environment.set(\"dave_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"dave\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Eve (Player 5)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.response.text();",
+									"pm.environment.set(\"eve_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"eve\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Frank (Player 6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var token = pm.response.text();",
+									"pm.environment.set(\"frank_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"frank\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Setup Lobby A (Alice, Bob, Charlie)",
+			"item": [
+				{
+					"name": "Create Lobby A (Alice - Host A)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(pm.response.text());",
+									"pm.environment.set(\"lobby_id_a\", jsonData.lobbyId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{alice_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/lobby/create?name=LobbyAlpha",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lobby",
+								"create"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "LobbyAlpha"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bob Joins Lobby A",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bob_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/player/join?lobbyId={{lobby_id_a}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"join"
+							],
+							"query": [
+								{
+									"key": "lobbyId",
+									"value": "{{lobby_id_a}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Charlie Joins Lobby A",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{charlie_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/player/join?lobbyId={{lobby_id_a}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"join"
+							],
+							"query": [
+								{
+									"key": "lobbyId",
+									"value": "{{lobby_id_a}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Lobby A Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{alice_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/lobby/{{lobby_id_a}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lobby",
+								"{{lobby_id_a}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Setup Lobby B (Dave, Eve, Frank)",
+			"item": [
+				{
+					"name": "Create Lobby B (Dave - Host B)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(pm.response.text());",
+									"pm.environment.set(\"lobby_id_b\", jsonData.lobbyId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{dave_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/lobby/create?name=LobbyBeta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lobby",
+								"create"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "LobbyBeta"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eve Joins Lobby B",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{eve_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/player/join?lobbyId={{lobby_id_b}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"join"
+							],
+							"query": [
+								{
+									"key": "lobbyId",
+									"value": "{{lobby_id_b}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Frank Joins Lobby B",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{frank_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/player/join?lobbyId={{lobby_id_b}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"join"
+							],
+							"query": [
+								{
+									"key": "lobbyId",
+									"value": "{{lobby_id_b}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Lobby B Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{dave_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/lobby/{{lobby_id_b}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lobby",
+								"{{lobby_id_b}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Verify Parallel Isolation",
+			"item": [
+				{
+					"name": "List All Active Lobbies",
+					"description": "Lists both Lobby Alpha and Lobby Beta showing they run in parallel.",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{alice_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/lobby/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lobby",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Start Game A (Alice - Host A)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{alice_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/game/start",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"game",
+								"start"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Game A is NIGHT (Lobby A)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{alice_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/lobby/{{lobby_id_a}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lobby",
+								"{{lobby_id_a}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Lobby B is STILL LOBBY",
+					"description": "Confirms that starting Game A had absolutely no impact on Lobby B's state.",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{dave_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/lobby/{{lobby_id_b}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lobby",
+								"{{lobby_id_b}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Start Game B (Dave - Host B)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{dave_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/game/start",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"game",
+								"start"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Game B is now NIGHT (Lobby B)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{dave_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/lobby/{{lobby_id_b}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lobby",
+								"{{lobby_id_b}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "lobby_id_a",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "lobby_id_b",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "alice_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "bob_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "charlie_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "dave_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "eve_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "frank_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

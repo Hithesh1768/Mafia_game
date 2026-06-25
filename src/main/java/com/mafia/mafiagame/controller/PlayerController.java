@@ -15,8 +15,8 @@ public class PlayerController {
     }
 
     @PostMapping("/join")
-    public Player join() {
-        return service.joinGame();
+    public Player join(@RequestParam String lobbyId) {
+        return service.joinGame(lobbyId);
     }
 
     @PostMapping("/leave")

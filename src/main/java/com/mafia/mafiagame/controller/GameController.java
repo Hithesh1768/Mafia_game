@@ -1,6 +1,7 @@
 package com.mafia.mafiagame.controller;
 
 import com.mafia.mafiagame.game.GameEngine;
+import com.mafia.mafiagame.game.GameSession;
 import com.mafia.mafiagame.service.PlayerService;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +26,16 @@ public class GameController {
 
     @PostMapping("/reset")
     public String resetGame() {
-
         playerService.requireHost();
         engine.resetGame();
         return "Game reset. Lobby cleared.";
+    }
+
+    @PostMapping("/return-to-lobby")
+    public String returnToLobby() {
+        playerService.requireHost();
+        GameSession session = playerService.getCurrentSession();
+        engine.returnToLobby(session);
+        return "Returned to lobby. Ready for next round.";
     }
 }

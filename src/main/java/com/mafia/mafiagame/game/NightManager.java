@@ -2,25 +2,23 @@ package com.mafia.mafiagame.game;
 
 import com.mafia.mafiagame.model.Player;
 import com.mafia.mafiagame.model.Role;
+import com.mafia.mafiagame.service.PlayerService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class NightManager {
 
-    private final Map<Role, Long> actions = new HashMap<>();
-    private final GameSession session;
+    private final PlayerService playerService;
     private final WinConditionService winService;
 
-    public NightManager(GameSession session, WinConditionService winService) {
-        this.session = session;
+    public NightManager(PlayerService playerService, WinConditionService winService) {
+        this.playerService = playerService;
         this.winService = winService;
     }
 
     public synchronized String submitAction(NightAction action) {
+        GameSession session = playerService.getCurrentSession();
 
         if (session.getState() != GameState.NIGHT)
             return "Not night time.";
@@ -42,11 +40,11 @@ public class NightManager {
         if (session.getNightActors().contains(actor.getId()))
             return "You have already acted.";
 
-        actions.put(actor.getRole(), action.getTargetId());
+        session.getNightActions().put(actor.getRole(), action.getTargetId());
         session.recordNightAction(actor.getId());
 
-        if (allNightActorsSubmitted())
-            return resolveNight();
+        if (allNightActorsSubmitted(session))
+            return resolveNight(session);
 
         return "Action recorded.";
     }
@@ -55,7 +53,7 @@ public class NightManager {
      * Safe resolve:
      * phase is locked BEFORE resolution
      */
-    public synchronized String resolveNight() {
+    public synchronized String resolveNight(GameSession session) {
 
         if (session.getState() != GameState.NIGHT)
             return "Not night time.";
@@ -63,8 +61,8 @@ public class NightManager {
         // 🔒 LOCK PHASE FIRST
         session.lockNight();
 
-        Long kill = actions.get(Role.MAFIA);
-        Long save = actions.get(Role.DOCTOR);
+        Long kill = session.getNightActions().get(Role.MAFIA);
+        Long save = session.getNightActions().get(Role.DOCTOR);
 
         String result;
 
@@ -75,7 +73,7 @@ public class NightManager {
                     .orElse(null);
 
             if (victim != null) victim.setAlive(false);
-            result = victim.getName() + " was killed.";
+            result = (victim != null ? victim.getName() : "Someone") + " was killed.";
         } else {
             result = "Doctor saved the victim.";
         }
@@ -84,7 +82,6 @@ public class NightManager {
         if (winner != null)
             return "Game Over: " + winner;
 
-        actions.clear();
         session.resetNightActions();
         session.setLastNightMessage(result);
 
@@ -94,7 +91,7 @@ public class NightManager {
         return result + " Day begins.";
     }
 
-    private boolean allNightActorsSubmitted() {
+    private boolean allNightActorsSubmitted(GameSession session) {
         long required = session.getPlayers().stream()
                 .filter(Player::isAlive)
                 .filter(p -> p.getRole() == Role.MAFIA || p.getRole() == Role.DOCTOR)

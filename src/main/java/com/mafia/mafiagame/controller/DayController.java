@@ -12,19 +12,17 @@ import org.springframework.web.bind.annotation.*;
 public class DayController {
 
     private final DayManager dayManager;
-    private final GameSession session;
     private final PlayerService playerService;
 
     public DayController(DayManager dayManager,
-                         GameSession session,
                          PlayerService playerService) {
         this.dayManager = dayManager;
-        this.session = session;
         this.playerService = playerService;
     }
 
     @GetMapping("/start")
     public String startDay() {
+        GameSession session = playerService.getCurrentSession();
         if (session.getState() != GameState.DAY) {
             return "It is not daytime.";
         }
@@ -36,17 +34,16 @@ public class DayController {
         return dayManager.submitVote(vote);
     }
 
-
     @PostMapping("/resolve")
     public String resolveDay() {
-
         // 🔒 Host only
         playerService.requireHost();
 
+        GameSession session = playerService.getCurrentSession();
         if (session.getState() != GameState.DAY) {
             return "It is not daytime.";
         }
 
-        return dayManager.resolveDay();
+        return dayManager.resolveDay(session);
     }
 }

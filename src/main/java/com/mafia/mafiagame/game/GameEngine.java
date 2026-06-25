@@ -3,7 +3,9 @@ package com.mafia.mafiagame.game;
 import com.mafia.mafiagame.model.Player;
 import com.mafia.mafiagame.model.Role;
 import com.mafia.mafiagame.repository.PlayerRepository;
+import com.mafia.mafiagame.service.PlayerService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
@@ -12,15 +14,15 @@ import java.util.Random;
 public class GameEngine {
 
     private final PlayerRepository repo;
-    private final GameSession session;
+    private final PlayerService playerService;
 
-    public GameEngine(PlayerRepository repo, GameSession session) {
+    public GameEngine(PlayerRepository repo, PlayerService playerService) {
         this.repo = repo;
-        this.session = session;
+        this.playerService = playerService;
     }
 
     public String startGame() {
-
+        GameSession session = playerService.getCurrentSession();
         session.startGame();   // All validation & locking happens here
 
         List<Player> players = session.getPlayers();
@@ -30,7 +32,6 @@ public class GameEngine {
     }
 
     private void assignRoles(List<Player> players) {
-
         Random rand = new Random();
 
         int mafiaCount = Math.max(1, players.size() / 4);
@@ -69,10 +70,23 @@ public class GameEngine {
         }
     }
 
-
+    @Transactional
     public synchronized String resetGame() {
-        repo.deleteAll();
+        GameSession session = playerService.getCurrentSession();
+        List<Player> players = session.getPlayers();
+        repo.deleteAll(players);
         session.reset();
         return "Game reset.";
+    }
+
+    @Transactional
+    public void returnToLobby(GameSession session) {
+        List<Player> players = session.getPlayers();
+        for (Player p : players) {
+            p.setRole(null);
+            p.setAlive(true);
+            repo.save(p);
+        }
+        session.returnToLobby();
     }
 }

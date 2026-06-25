@@ -1,6 +1,7 @@
 package com.mafia.mafiagame.game;
 
 import com.mafia.mafiagame.model.Player;
+import com.mafia.mafiagame.service.PlayerService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -10,16 +11,16 @@ import java.util.Map;
 @Component
 public class DayManager {
 
-    private final Map<Long, Long> votes = new HashMap<>();
-    private final GameSession session;
+    private final PlayerService playerService;
     private final WinConditionService winService;
 
-    public DayManager(GameSession session, WinConditionService winService) {
-        this.session = session;
+    public DayManager(PlayerService playerService, WinConditionService winService) {
+        this.playerService = playerService;
         this.winService = winService;
     }
 
     public synchronized String submitVote(Vote vote) {
+        GameSession session = playerService.getCurrentSession();
 
         if (session.getState() != GameState.DAY)
             return "Not daytime.";
@@ -46,17 +47,16 @@ public class DayManager {
         if (target == null)
             return "Invalid target.";
 
-        votes.put(voter.getId(), target.getId());
+        session.getDayVotes().put(voter.getId(), target.getId());
         session.recordDayVote(voter.getId());
 
-        if (allAliveVoted())
-            return resolveDay();
+        if (allAliveVoted(session))
+            return resolveDay(session);
 
         return "Vote recorded.";
     }
 
-
-    public synchronized String resolveDay() {
+    public synchronized String resolveDay(GameSession session) {
 
         if (session.getState() != GameState.DAY)
             return "Not daytime.";
@@ -64,15 +64,16 @@ public class DayManager {
         // 🔒 LOCK PHASE FIRST
         session.lockDay();
 
-        if (votes.isEmpty()) {
-            votes.clear();
+        Map<Long, Long> dayVotes = session.getDayVotes();
+
+        if (dayVotes.isEmpty()) {
             session.resetDayVotes();
             session.startNight();
             return "No votes cast. Night begins.";
         }
 
         Map<Long, Integer> tally = new HashMap<>();
-        for (Long t : votes.values())
+        for (Long t : dayVotes.values())
             tally.put(t, tally.getOrDefault(t, 0) + 1);
 
         int maxVotes = tally.values().stream()
@@ -84,7 +85,6 @@ public class DayManager {
                 .count();
 
         if (winners > 1) {
-            votes.clear();
             session.resetDayVotes();
             session.startNight();
             return "Vote tied. No one was eliminated. Night begins.";
@@ -108,7 +108,6 @@ public class DayManager {
         if (winner != null)
             return "Game Over: " + winner;
 
-        votes.clear();
         session.resetDayVotes();
         session.startNight();
 
@@ -117,7 +116,7 @@ public class DayManager {
                 : "No elimination. Night begins.";
     }
 
-    private boolean allAliveVoted() {
+    private boolean allAliveVoted(GameSession session) {
         long alive = session.getPlayers().stream()
                 .filter(Player::isAlive)
                 .count();
