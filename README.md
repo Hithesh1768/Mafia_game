@@ -78,6 +78,13 @@ Spring Boot, JPA, Hibernate, JWT, Maven
 
 ---
 
+###  Host System
+- Host designation for each lobby
+- Only host can:
+    - Start the game
+    - Reset the game
+    - Kick players
+
 ##  Win Conditions
 
 - **Citizens win** when all Mafia are eliminated
@@ -91,12 +98,7 @@ Spring Boot, JPA, Hibernate, JWT, Maven
 
 The following features are **actively planned** and will be implemented next:
 
-###  Host System
-- Host designation for each lobby
-- Only host can:
-    - Start the game
-    - Reset the game
-    - Kick players
+
 
 ###  Multi-Lobby Support
 - Multiple lobbies running in parallel
