@@ -1,6 +1,7 @@
 package com.mafia.mafiagame.controller;
 
 import com.mafia.mafiagame.game.GameEngine;
+import com.mafia.mafiagame.service.PlayerService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -8,20 +9,25 @@ import org.springframework.web.bind.annotation.*;
 public class GameController {
 
     private final GameEngine engine;
+    private final PlayerService playerService;
 
-    public GameController(GameEngine engine) {
+    public GameController(GameEngine engine, PlayerService playerService) {
         this.engine = engine;
+        this.playerService = playerService;
     }
 
     @PostMapping("/start")
     public String startGame() {
+        playerService.requireHost();
         engine.startGame();
         return "Game Started. Roles assigned.";
     }
+
     @PostMapping("/reset")
     public String resetGame() {
+
+        playerService.requireHost();
         engine.resetGame();
         return "Game reset. Lobby cleared.";
     }
-
 }

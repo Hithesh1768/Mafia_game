@@ -18,6 +18,16 @@ public class Player {
 
     private boolean alive = true;
 
+    private boolean host;
+
+    public boolean isHost() {
+        return host;
+    }
+
+    public void setHost(boolean host) {
+        this.host = host;
+    }
+
     public Player() {}
 
     public Player(Long userId, String name) {

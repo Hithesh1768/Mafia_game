@@ -42,7 +42,6 @@ public class NightManager {
         if (session.getNightActors().contains(actor.getId()))
             return "You have already acted.";
 
-
         actions.put(actor.getRole(), action.getTargetId());
         session.recordNightAction(actor.getId());
 
@@ -52,10 +51,17 @@ public class NightManager {
         return "Action recorded.";
     }
 
+    /**
+     * Safe resolve:
+     * phase is locked BEFORE resolution
+     */
     public synchronized String resolveNight() {
 
         if (session.getState() != GameState.NIGHT)
             return "Not night time.";
+
+        // 🔒 LOCK PHASE FIRST
+        session.lockNight();
 
         Long kill = actions.get(Role.MAFIA);
         Long save = actions.get(Role.DOCTOR);
@@ -75,11 +81,14 @@ public class NightManager {
         }
 
         String winner = winService.checkWinner(session);
-        if (winner != null) return "Game Over: " + winner;
+        if (winner != null)
+            return "Game Over: " + winner;
 
         actions.clear();
         session.resetNightActions();
         session.setLastNightMessage(result);
+
+        // advance phase AFTER resolution
         session.startDay();
 
         return result + " Day begins.";

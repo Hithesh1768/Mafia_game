@@ -55,9 +55,17 @@ public class DayManager {
         return "Vote recorded.";
     }
 
-    private synchronized String resolveDay() {
+
+    public synchronized String resolveDay() {
+
+        if (session.getState() != GameState.DAY)
+            return "Not daytime.";
+
+        // 🔒 LOCK PHASE FIRST
+        session.lockDay();
 
         if (votes.isEmpty()) {
+            votes.clear();
             session.resetDayVotes();
             session.startNight();
             return "No votes cast. Night begins.";
@@ -67,7 +75,9 @@ public class DayManager {
         for (Long t : votes.values())
             tally.put(t, tally.getOrDefault(t, 0) + 1);
 
-        int maxVotes = tally.values().stream().max(Integer::compareTo).orElse(0);
+        int maxVotes = tally.values().stream()
+                .max(Integer::compareTo)
+                .orElse(0);
 
         long winners = tally.values().stream()
                 .filter(v -> v == maxVotes)
@@ -109,7 +119,8 @@ public class DayManager {
 
     private boolean allAliveVoted() {
         long alive = session.getPlayers().stream()
-                .filter(Player::isAlive).count();
+                .filter(Player::isAlive)
+                .count();
 
         return session.getDayVoters().size() == alive;
     }

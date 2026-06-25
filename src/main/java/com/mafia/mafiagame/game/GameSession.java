@@ -17,9 +17,22 @@ public class GameSession {
     private String lastNightMessage = "";
 
     public synchronized void join(Player p) {
-        if (state != GameState.LOBBY) throw new IllegalStateException("Game already started");
-        if (!players.contains(p)) players.add(p);
+        if (state != GameState.LOBBY)
+            throw new IllegalStateException("Game already started");
+
+        boolean exists = players.stream()
+                .anyMatch(pl -> pl.getUserId().equals(p.getUserId()));
+
+        if (!exists) {
+            players.add(p);
+        }
     }
+
+    public synchronized void leave(Player p) {
+        players.removeIf(pl -> pl.getUserId().equals(p.getUserId()));
+    }
+
+
 
     public synchronized void startGame() {
         if (players.size() < 3) throw new IllegalStateException("Need at least 3 players");
@@ -45,8 +58,23 @@ public class GameSession {
         dayVoters.clear();
         lastNightMessage = "";
     }
+    public void lockNight() {
+        if (state == GameState.NIGHT)
+            state = GameState.RESOLVING_NIGHT;
+    }
 
-    public List<Player> getPlayers() { return players; }
+    public void lockDay() {
+        if (state == GameState.DAY)
+            state = GameState.RESOLVING_DAY;
+    }
+
+    public List<Player> getPlayers() {
+        return Collections.unmodifiableList(players);
+    }
+    public synchronized boolean removeByUserId(Long userId) {
+        return players.removeIf(p -> p.getUserId().equals(userId));
+    }
+
     public GameState getState() { return state; }
 
     public void recordNightAction(Long id) { nightActors.add(id); }

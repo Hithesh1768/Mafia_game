@@ -19,6 +19,12 @@ public class PlayerController {
         return service.joinGame();
     }
 
+    @PostMapping("/leave")
+    public String leave() {
+        service.leaveGame();
+        return "Player left the game.";
+    }
+
     @GetMapping("/me")
     public Player me() {
         return service.getCurrentPlayer();

@@ -4,5 +4,8 @@ public enum GameState {
     LOBBY,
     NIGHT,
     DAY,
-    FINISHED
+    FINISHED,
+    RESOLVING_NIGHT,
+    RESOLVING_DAY
+
 }
