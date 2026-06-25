@@ -84,22 +84,6 @@ Spring Boot, JPA, Hibernate, JWT, Maven
     - Start the game
     - Reset the game
     - Kick players
-
-##  Win Conditions
-
-- **Citizens win** when all Mafia are eliminated
-- **Mafia win** when Mafia ≥ Citizens
-
----
-
----
-
-## Roadmap — Upcoming Features
-
-The following features are **actively planned** and will be implemented next:
-
-
-
 ###  Multi-Lobby Support
 - Multiple lobbies running in parallel
 - Players can:
@@ -117,6 +101,22 @@ The following features are **actively planned** and will be implemented next:
     - Roles & alive status reset
     - New players may join
     - Host can start a new round without rejoining
+
+##  Win Conditions
+
+- **Citizens win** when all Mafia are eliminated
+- **Mafia win** when Mafia ≥ Citizens
+
+---
+
+---
+
+## Roadmap — Upcoming Features
+
+The following features are **actively planned** and will be implemented next:
+
+
+
 
 ###  Expanded Roles
 - Multiple Mafia
