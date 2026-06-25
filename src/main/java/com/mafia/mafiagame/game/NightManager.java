@@ -3,6 +3,7 @@ package com.mafia.mafiagame.game;
 import com.mafia.mafiagame.model.Player;
 import com.mafia.mafiagame.model.Role;
 import com.mafia.mafiagame.service.PlayerService;
+import com.mafia.mafiagame.repository.PlayerRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -11,10 +12,12 @@ public class NightManager {
 
     private final PlayerService playerService;
     private final WinConditionService winService;
+    private final PlayerRepository playerRepo;
 
-    public NightManager(PlayerService playerService, WinConditionService winService) {
+    public NightManager(PlayerService playerService, WinConditionService winService, PlayerRepository playerRepo) {
         this.playerService = playerService;
         this.winService = winService;
+        this.playerRepo = playerRepo;
     }
 
     public synchronized String submitAction(NightAction action) {
@@ -72,7 +75,10 @@ public class NightManager {
                     .findFirst()
                     .orElse(null);
 
-            if (victim != null) victim.setAlive(false);
+            if (victim != null) {
+                victim.setAlive(false);
+                playerRepo.save(victim);
+            }
             result = (victim != null ? victim.getName() : "Someone") + " was killed.";
         } else {
             result = "Doctor saved the victim.";

@@ -2,6 +2,7 @@ package com.mafia.mafiagame.game;
 
 import com.mafia.mafiagame.model.Player;
 import com.mafia.mafiagame.service.PlayerService;
+import com.mafia.mafiagame.repository.PlayerRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -13,10 +14,12 @@ public class DayManager {
 
     private final PlayerService playerService;
     private final WinConditionService winService;
+    private final PlayerRepository playerRepo;
 
-    public DayManager(PlayerService playerService, WinConditionService winService) {
+    public DayManager(PlayerService playerService, WinConditionService winService, PlayerRepository playerRepo) {
         this.playerService = playerService;
         this.winService = winService;
+        this.playerRepo = playerRepo;
     }
 
     public synchronized String submitVote(Vote vote) {
@@ -101,8 +104,10 @@ public class DayManager {
                 .findFirst()
                 .orElse(null);
 
-        if (eliminated != null)
+        if (eliminated != null) {
             eliminated.setAlive(false);
+            playerRepo.save(eliminated);
+        }
 
         String winner = winService.checkWinner(session);
         if (winner != null)

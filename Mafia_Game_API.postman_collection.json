@@ -819,6 +819,66 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "5. Rule-Enforced Chat",
+			"item": [
+				{
+					"name": "Send Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{alice_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Hello, is anyone Mafia here?\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/chat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Filtered Chat History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{alice_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/chat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [

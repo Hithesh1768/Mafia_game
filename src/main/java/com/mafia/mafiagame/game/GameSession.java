@@ -1,5 +1,6 @@
 package com.mafia.mafiagame.game;
 
+import com.mafia.mafiagame.model.ChatMessage;
 import com.mafia.mafiagame.model.Player;
 import com.mafia.mafiagame.model.Role;
 
@@ -18,6 +19,7 @@ public class GameSession {
     private final Map<Long, Long> dayVotes = new HashMap<>();
 
     private String lastNightMessage = "";
+    private final List<ChatMessage> chatHistory = new ArrayList<>();
 
     public GameSession(String lobbyId) {
         this.lobbyId = lobbyId;
@@ -68,6 +70,7 @@ public class GameSession {
         dayVoters.clear();
         nightActions.clear();
         dayVotes.clear();
+        chatHistory.clear();
         lastNightMessage = "";
     }
 
@@ -78,6 +81,7 @@ public class GameSession {
         dayVoters.clear();
         nightActions.clear();
         dayVotes.clear();
+        chatHistory.clear();
         lastNightMessage = "";
     }
     public void lockNight() {
@@ -119,4 +123,12 @@ public class GameSession {
 
     public String getLastNightMessage() { return lastNightMessage; }
     public void setLastNightMessage(String msg) { lastNightMessage = msg; }
+
+    public synchronized void addMessage(ChatMessage message) {
+        chatHistory.add(message);
+    }
+
+    public List<ChatMessage> getChatHistory() {
+        return Collections.unmodifiableList(chatHistory);
+    }
 }
