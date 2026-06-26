@@ -20,12 +20,12 @@ public class WinConditionService {
                 .count();
 
         if (mafia == 0) {
-            session.finishGame();
+            session.finishGame("CITIZENS WIN");
             return "CITIZENS WIN";
         }
 
         if (mafia >= citizens) {
-            session.finishGame();
+            session.finishGame("MAFIA WIN");
             return "MAFIA WIN";
         }
 

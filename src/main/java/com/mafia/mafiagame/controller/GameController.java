@@ -2,8 +2,11 @@ package com.mafia.mafiagame.controller;
 
 import com.mafia.mafiagame.game.GameEngine;
 import com.mafia.mafiagame.game.GameSession;
+import com.mafia.mafiagame.model.Player;
 import com.mafia.mafiagame.service.PlayerService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/game")
@@ -15,6 +18,11 @@ public class GameController {
     public GameController(GameEngine engine, PlayerService playerService) {
         this.engine = engine;
         this.playerService = playerService;
+    }
+
+    @GetMapping("/players")
+    public List<Player> getPlayers() {
+        return playerService.getCurrentSession().getPlayers();
     }
 
     @PostMapping("/start")
