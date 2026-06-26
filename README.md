@@ -9,6 +9,9 @@ Multiplayer Mafia game backend built using Spring Boot and JWT authentication.
 - Role assignment (Mafia, Doctor, Citizen)
 - Night actions & day voting
 - Win condition detection
+- Improved interactive game chat
+- Private and password-protected lobbies
+
 
 
 ## Game Flow
@@ -87,8 +90,8 @@ Spring Boot, JPA, Hibernate, JWT, Maven
 ###  Multi-Lobby Support
 - Multiple lobbies running in parallel
 - Players can:
-    - Create new lobby
-    - Join existing lobby
+    - Create new lobby (public, private, or password-protected)
+    - Join existing lobby (requires password verification for password-protected lobbies)
 - Each lobby maintains its own:
     - Player list
     - Game state
@@ -115,8 +118,8 @@ Spring Boot, JPA, Hibernate, JWT, Maven
 
 The following features are **actively planned** and will be implemented next:
 
-
-
+###  Frontend Client
+- Complete React/CSS web frontend integration and user interface
 
 ###  Expanded Roles
 - Multiple Mafia
