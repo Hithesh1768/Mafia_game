@@ -21,10 +21,13 @@ public class LobbyController {
     }
 
     @PostMapping("/create")
-    public Lobby createLobby(@RequestParam(required = false) String name) {
+    public Lobby createLobby(
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "false") boolean isPrivate,
+            @RequestParam(required = false) String password) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Lobby lobby = lobbyManager.createLobby(name, username);
-        playerService.joinGame(lobby.getLobbyId());
+        Lobby lobby = lobbyManager.createLobby(name, username, isPrivate, password);
+        playerService.joinGame(lobby.getLobbyId(), password);
         return lobbyManager.getLobby(lobby.getLobbyId());
     }
 
@@ -40,5 +43,11 @@ public class LobbyController {
             throw new RuntimeException("Lobby not found");
         }
         return lobby;
+    }
+
+    @PostMapping("/dismiss")
+    public String dismissLobby() {
+        playerService.dismissLobby();
+        return "Lobby dismissed successfully.";
     }
 }

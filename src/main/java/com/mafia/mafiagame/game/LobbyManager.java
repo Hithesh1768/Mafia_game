@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.springframework.context.annotation.Lazy;
+
 @Component
 public class LobbyManager {
 
@@ -17,10 +19,20 @@ public class LobbyManager {
 
     private final Random random = new Random();
 
-    public synchronized Lobby createLobby(String name, String hostName) {
+    private final DayManager dayManager;
+    private final NightManager nightManager;
+
+    public LobbyManager(@Lazy DayManager dayManager, @Lazy NightManager nightManager) {
+        this.dayManager = dayManager;
+        this.nightManager = nightManager;
+    }
+
+    public synchronized Lobby createLobby(String name, String hostName, boolean isPrivate, String password) {
         String lobbyId = generateLobbyId();
-        
+
         GameSession session = new GameSession(lobbyId);
+        session.setPrivate(isPrivate);
+        session.setPassword(password);
         sessions.put(lobbyId, session);
         lobbyNames.put(lobbyId, (name == null || name.trim().isEmpty()) ? "Lobby " + lobbyId : name);
         lobbyMaxPlayers.put(lobbyId, 10); // default maximum players
@@ -37,6 +49,20 @@ public class LobbyManager {
         if (session == null) {
             return null;
         }
+
+        // Check phase timeouts
+        if (session.getState() == GameState.NIGHT) {
+            long elapsed = System.currentTimeMillis() - session.getPhaseStartTime();
+            if (session.getPhaseStartTime() > 0 && elapsed > 300_000) { // 5 minutes
+                nightManager.resolveNight(session);
+            }
+        } else if (session.getState() == GameState.DAY) {
+            long elapsed = System.currentTimeMillis() - session.getPhaseStartTime();
+            if (session.getPhaseStartTime() > 0 && elapsed > 900_000) { // 15 minutes
+                dayManager.resolveDay(session);
+            }
+        }
+
         String name = lobbyNames.getOrDefault(lobbyId, "Lobby " + lobbyId);
         int max = lobbyMaxPlayers.getOrDefault(lobbyId, 10);
         String hostName = session.getPlayers().stream()
@@ -45,20 +71,41 @@ public class LobbyManager {
                 .findFirst()
                 .orElse("None");
 
-        return new Lobby(
-                lobbyId, 
-                name, 
-                hostName, 
-                session.getPlayers().size(), 
-                max, 
-                session.getState()
-        );
+        Lobby lobby = new Lobby(
+                lobbyId,
+                name,
+                hostName,
+                session.getPlayers().size(),
+                max,
+                session.getState());
+        lobby.setGameResult(session.getGameResult());
+        lobby.setPrivate(session.isPrivate());
+        lobby.setPasswordProtected(session.getPassword() != null && !session.getPassword().isEmpty());
+
+        int timeLeft = 0;
+        if (session.getState() == GameState.NIGHT) {
+            long elapsed = (System.currentTimeMillis() - session.getPhaseStartTime()) / 1000;
+            timeLeft = (int) Math.max(0, 300 - elapsed);
+        } else if (session.getState() == GameState.DAY) {
+            long elapsed = (System.currentTimeMillis() - session.getPhaseStartTime()) / 1000;
+            timeLeft = (int) Math.max(0, 900 - elapsed);
+        }
+        lobby.setTimeLeft(timeLeft);
+
+        if (session.getState() == GameState.DAY) {
+            Map<Long, Integer> tally = new HashMap<>();
+            for (Long targetId : session.getDayVotes().values()) {
+                tally.put(targetId, tally.getOrDefault(targetId, 0) + 1);
+            }
+            lobby.setVoteTally(tally);
+        }
+        return lobby;
     }
 
     public List<Lobby> listActiveLobbies() {
         return sessions.keySet().stream()
                 .map(this::getLobby)
-                .filter(l -> l != null && l.getGameState() == GameState.LOBBY)
+                .filter(l -> l != null && l.getGameState() == GameState.LOBBY && !l.isPrivate())
                 .collect(Collectors.toList());
     }
 

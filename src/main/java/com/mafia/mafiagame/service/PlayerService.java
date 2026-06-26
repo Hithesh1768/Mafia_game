@@ -9,6 +9,7 @@ import com.mafia.mafiagame.user.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,7 +39,7 @@ public class PlayerService {
         return session;
     }
 
-    public Player joinGame(String lobbyId) {
+    public Player joinGame(String lobbyId, String joinPassword) {
         String username = SecurityContextHolder
                 .getContext()
                 .getAuthentication()
@@ -47,13 +48,38 @@ public class PlayerService {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Fetch session
+        GameSession session = lobbyManager.getSession(lobbyId);
+        if (session == null) {
+            throw new RuntimeException("Lobby not found");
+        }
+
+        // Check password
+        if (session.getPassword() != null && !session.getPassword().isEmpty()) {
+            if (joinPassword == null || !session.getPassword().equals(joinPassword)) {
+                throw new RuntimeException("Incorrect password");
+            }
+        }
+
         Optional<Player> existingPlayer = playerRepo.findByUserId(user.getId());
         Player player;
         if (existingPlayer.isPresent()) {
             player = existingPlayer.get();
-            // If they are in another lobby, leave it first
+            // If they are in another lobby, leave it first (remove from memory session only)
             if (player.getLobbyId() != null && !player.getLobbyId().equals(lobbyId)) {
-                leaveGame();
+                GameSession oldSession = lobbyManager.getSession(player.getLobbyId());
+                if (oldSession != null) {
+                    boolean wasHost = player.isHost();
+                    oldSession.removeByUserId(player.getUserId());
+                    if (wasHost && !oldSession.getPlayers().isEmpty()) {
+                        Player newHost = oldSession.getPlayers().get(0);
+                        newHost.setHost(true);
+                        playerRepo.save(newHost);
+                    }
+                    if (oldSession.getPlayers().isEmpty()) {
+                        lobbyManager.removeLobby(player.getLobbyId());
+                    }
+                }
             }
             player.setLobbyId(lobbyId);
         } else {
@@ -64,12 +90,6 @@ public class PlayerService {
         // 🔥 CRITICAL FIX: host is SESSION-based, reset DB leak
         player.setHost(false);
         playerRepo.save(player);
-
-        // Fetch session
-        GameSession session = lobbyManager.getSession(lobbyId);
-        if (session == null) {
-            throw new RuntimeException("Lobby not found");
-        }
 
         // Join session
         session.join(player);
@@ -134,7 +154,7 @@ public class PlayerService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return playerRepo.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Player not found"));
+                .orElseGet(() -> new Player(user.getId(), username));
     }
 
     /**
@@ -148,5 +168,20 @@ public class PlayerService {
         }
 
         return player;
+    }
+
+    public void dismissLobby() {
+        Player host = requireHost();
+        String lobbyId = host.getLobbyId();
+        if (lobbyId == null) {
+            throw new RuntimeException("You are not in a lobby");
+        }
+
+        GameSession session = lobbyManager.getSession(lobbyId);
+        if (session != null) {
+            List<Player> players = session.getPlayers();
+            playerRepo.deleteAll(players);
+            lobbyManager.removeLobby(lobbyId);
+        }
     }
 }
