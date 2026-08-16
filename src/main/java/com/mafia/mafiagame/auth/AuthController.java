@@ -21,4 +21,19 @@ public class AuthController {
     public String login(@RequestBody AuthRequest r) {
         return service.login(r);
     }
+
+    @PostMapping("/guest")
+    public String loginAsGuest(@RequestParam String nickname) {
+        return service.loginAsGuest(nickname);
+    }
+
+    @PostMapping("/google")
+    public String loginWithGoogle(@RequestBody GoogleAuthRequest r) {
+        return service.loginWithGoogle(r.getCredential());
+    }
+
+    @PostMapping("/register/google")
+    public String registerWithGoogle(@RequestBody GoogleRegisterRequest r) {
+        return service.registerWithGoogle(r);
+    }
 }

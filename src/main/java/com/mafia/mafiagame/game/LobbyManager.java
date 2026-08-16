@@ -2,6 +2,7 @@ package com.mafia.mafiagame.game;
 
 import com.mafia.mafiagame.model.Lobby;
 import com.mafia.mafiagame.model.Player;
+import com.mafia.mafiagame.model.Role;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -98,6 +99,30 @@ public class LobbyManager {
                 tally.put(targetId, tally.getOrDefault(targetId, 0) + 1);
             }
             lobby.setVoteTally(tally);
+        } else if (session.getState() == GameState.NIGHT) {
+            try {
+                String username = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                        .getAuthentication().getName();
+                Player currentPlayer = session.getPlayers().stream()
+                        .filter(p -> p.getName().equals(username))
+                        .findFirst()
+                        .orElse(null);
+                if (currentPlayer != null && currentPlayer.getRole() == Role.MAFIA) {
+                    Map<Long, Integer> tally = new HashMap<>();
+                    List<Player> aliveMafia = session.getPlayers().stream()
+                            .filter(p -> p.isAlive() && p.getRole() == Role.MAFIA)
+                            .collect(Collectors.toList());
+                    for (Player m : aliveMafia) {
+                        Long targetId = session.getNightActions().get(m.getId());
+                        if (targetId != null) {
+                            tally.put(targetId, tally.getOrDefault(targetId, 0) + 1);
+                        }
+                    }
+                    lobby.setVoteTally(tally);
+                }
+            } catch (Exception e) {
+                // Ignore security context exceptions
+            }
         }
         return lobby;
     }

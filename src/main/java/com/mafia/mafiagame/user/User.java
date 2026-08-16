@@ -17,6 +17,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
+    @Column(unique = true)
+    private String googleEmail;
+
     // ===== Getters & Setters =====
 
     public Long getId() {
@@ -49,5 +52,13 @@ public class User {
 
     public void setRole(RoleType role) {
         this.role = role;
+    }
+
+    public String getGoogleEmail() {
+        return googleEmail;
+    }
+
+    public void setGoogleEmail(String googleEmail) {
+        this.googleEmail = googleEmail;
     }
 }

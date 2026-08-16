@@ -15,7 +15,7 @@ public class GameSession {
     private final Set<Long> nightActors = new HashSet<>();
     private final Set<Long> dayVoters = new HashSet<>();
 
-    private final Map<Role, Long> nightActions = new HashMap<>();
+    private final Map<Long, Long> nightActions = new HashMap<>();
     private final Map<Long, Long> dayVotes = new HashMap<>();
 
     private String lastNightMessage = "";
@@ -149,7 +149,7 @@ public class GameSession {
         return dayVoters;
     }
 
-    public Map<Role, Long> getNightActions() {
+    public Map<Long, Long> getNightActions() {
         return nightActions;
     }
 

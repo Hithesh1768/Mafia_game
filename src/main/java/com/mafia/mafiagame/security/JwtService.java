@@ -17,11 +17,12 @@ public class JwtService {
     );
 
     public String generateToken(User user) {
+        long expirationTimeMs = (user.getRole() == com.mafia.mafiagame.user.RoleType.GUEST) ? 14400000L : 172800000L;
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("role", user.getRole().name())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTimeMs))
                 .signWith(key)
                 .compact();
     }

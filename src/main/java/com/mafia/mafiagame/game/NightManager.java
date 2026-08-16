@@ -7,6 +7,11 @@ import com.mafia.mafiagame.repository.PlayerRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class NightManager {
 
@@ -43,7 +48,7 @@ public class NightManager {
         if (session.getNightActors().contains(actor.getId()))
             return "You have already acted.";
 
-        session.getNightActions().put(actor.getRole(), action.getTargetId());
+        session.getNightActions().put(actor.getId(), action.getTargetId());
         session.recordNightAction(actor.getId());
 
         if (allNightActorsSubmitted(session))
@@ -64,24 +69,75 @@ public class NightManager {
         // 🔒 LOCK PHASE FIRST
         session.lockNight();
 
-        Long kill = session.getNightActions().get(Role.MAFIA);
-        Long save = session.getNightActions().get(Role.DOCTOR);
+        // 1. Get Doctor's Target
+        Long save = null;
+        Player doctor = session.getPlayers().stream()
+                .filter(p -> p.isAlive() && p.getRole() == Role.DOCTOR)
+                .findFirst()
+                .orElse(null);
+        if (doctor != null) {
+            save = session.getNightActions().get(doctor.getId());
+        }
 
+        // 2. Tally Mafia Votes
+        List<Player> aliveMafia = session.getPlayers().stream()
+                .filter(p -> p.isAlive() && p.getRole() == Role.MAFIA)
+                .collect(Collectors.toList());
+
+        Map<Long, Integer> mafiaTally = new HashMap<>();
+        for (Player m : aliveMafia) {
+            Long target = session.getNightActions().get(m.getId());
+            if (target != null) {
+                mafiaTally.put(target, mafiaTally.getOrDefault(target, 0) + 1);
+            }
+        }
+
+        Long kill = null;
+        boolean failedToDecide = false;
+        if (!mafiaTally.isEmpty()) {
+            int maxVotes = mafiaTally.values().stream()
+                    .max(Integer::compareTo)
+                    .orElse(0);
+
+            long maxCount = mafiaTally.values().stream()
+                    .filter(v -> v == maxVotes)
+                    .count();
+
+            if (maxCount > 1) {
+                failedToDecide = true;
+            } else {
+                kill = mafiaTally.entrySet().stream()
+                        .filter(e -> e.getValue() == maxVotes)
+                        .map(Map.Entry::getKey)
+                        .findFirst()
+                        .orElse(null);
+            }
+        } else {
+            failedToDecide = true;
+        }
+
+        final Long finalKill = kill;
         String result;
 
-        if (kill != null && !kill.equals(save)) {
-            Player victim = session.getPlayers().stream()
-                    .filter(p -> p.getId().equals(kill))
-                    .findFirst()
-                    .orElse(null);
+        if (failedToDecide) {
+            result = "Mafia failed to decide on who to kill.";
+        } else if (finalKill != null) {
+            if (finalKill.equals(save)) {
+                result = "Doctor saved the victim.";
+            } else {
+                Player victim = session.getPlayers().stream()
+                        .filter(p -> p.getId().equals(finalKill))
+                        .findFirst()
+                        .orElse(null);
 
-            if (victim != null) {
-                victim.setAlive(false);
-                playerRepo.save(victim);
+                if (victim != null) {
+                    victim.setAlive(false);
+                    playerRepo.save(victim);
+                }
+                result = (victim != null ? victim.getName() : "Someone") + " was killed.";
             }
-            result = (victim != null ? victim.getName() : "Someone") + " was killed.";
         } else {
-            result = "Doctor saved the victim.";
+            result = "No action taken.";
         }
 
         String winner = winService.checkWinner(session);
