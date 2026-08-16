@@ -1,0 +1,2208 @@
+.game-room-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Dynamic background phases */
+.phase-night {
+  background-color: #0d0d0d;
+}
+
+.phase-day {
+  background-color: #11100f;
+}
+
+.phase-finished {
+  background-color: #070707;
+}
+
+/* GhostSpectator mode styling */
+.ghost-mode {
+  filter: grayscale(0.4) brightness(0.9);
+}
+
+/* Sticky Navbar styling */
+.game-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 40px;
+  height: 64px;
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-outline-variant);
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.navbar-left-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navbar-brand-title {
+  font-family: var(--font-headline);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: var(--color-primary);
+}
+
+.navbar-phase-badges {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-phase-value-badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  background: rgba(211, 47, 47, 0.08);
+  padding: 4px 10px;
+  letter-spacing: 0.05em;
+}
+
+.phase-day .navbar-phase-value-badge {
+  color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  background: rgba(233, 193, 118, 0.08);
+}
+
+.phase-night.role-doctor .navbar-phase-value-badge {
+  color: var(--color-clinical-blue);
+  border-color: var(--color-clinical-blue);
+  background: rgba(0, 209, 255, 0.08);
+}
+
+.phase-night.role-citizen .navbar-phase-value-badge {
+  color: var(--text-muted);
+  border-color: var(--border-outline-variant);
+  background: rgba(171, 137, 133, 0.04);
+}
+
+.navbar-phase-time-badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timer-icon-navbar {
+  font-size: 14px;
+}
+
+.navbar-right-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar-spectator-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  border: 1px solid var(--border-outline-variant);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 10px;
+}
+
+.game-leave-btn {
+  background: transparent;
+  border: 1px solid var(--border-outline);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.game-leave-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Grid Layout */
+.game-room-grid-layout {
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 8fr 4fr;
+  gap: 32px;
+  padding: 40px;
+  align-items: stretch;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+@media (max-width: 992px) {
+  .game-room-grid-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .gameplay-chat-sidebar {
+    height: 500px !important;
+  }
+}
+
+.gameplay-interactive-area {
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.gameplay-alert-error {
+  background: rgba(211, 47, 47, 0.1);
+  border-left: 3px solid var(--color-primary);
+  padding: 12px;
+  color: #ffdad6;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.gameplay-alert-success {
+  background: rgba(197, 160, 89, 0.1);
+  border-left: 3px solid var(--color-secondary);
+  padding: 12px;
+  color: var(--color-secondary);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* 🌀 Gameplay Console Scanline overlay */
+.console-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  pointer-events: none;
+  z-index: 1000;
+  animation: gameConsoleScanline 8s linear infinite;
+}
+
+.phase-day .console-scanline {
+  background: rgba(233, 193, 118, 0.08);
+  /* gold */
+}
+
+.phase-night.role-mafia .console-scanline {
+  background: rgba(211, 47, 47, 0.08);
+  /* red */
+}
+
+.phase-night.role-doctor .console-scanline {
+  background: rgba(0, 255, 255, 0.08);
+  /* cyan */
+}
+
+.phase-night.role-citizen .console-scanline {
+  background: rgba(233, 193, 118, 0.04);
+  /* dim gold */
+}
+
+@keyframes gameConsoleScanline {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/* ---------------------------------------------------- */
+/* DAY PHASE VOTING CONSOLE                             */
+/* ---------------------------------------------------- */
+.day-voting-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--color-secondary);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.day-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.day-pulsing-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--color-secondary);
+}
+
+.phase-title-text {
+  font-family: var(--font-headline);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-secondary);
+}
+
+.day-timer-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid var(--color-secondary);
+  background: rgba(197, 160, 89, 0.05);
+  padding: 8px 16px;
+}
+
+.timer-info-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.timer-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-secondary);
+  letter-spacing: 0.05em;
+}
+
+.timer-digits {
+  font-family: var(--font-headline);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.timer-icon {
+  font-size: 32px;
+  color: var(--color-secondary);
+}
+
+.voting-progress-desc {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.phase-announcement-card {
+  margin-bottom: 24px;
+  border-color: rgba(0, 209, 255, 0.15);
+}
+
+.announcement-title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.announcement-text {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+/* Voting Grid layout */
+.voting-players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.player-voting-card {
+  background-color: var(--bg-secondary);
+  border-top: 2px solid var(--border-outline-variant);
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.player-voting-card:hover {
+  border-top-color: var(--color-primary);
+}
+
+.card-ref-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.player-card-body {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.player-card-avatar-box {
+  width: 80px;
+  height: 80px;
+  border: 1px solid var(--border-outline-variant);
+  background-color: var(--bg-primary);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.player-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-cover: cover;
+  filter: grayscale(1);
+}
+
+.player-voting-card:hover .player-avatar-image {
+  filter: grayscale(0.2);
+}
+
+.player-avatar-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(211, 47, 47, 0.8);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 9px;
+  text-align: center;
+  padding: 2px 0;
+  text-transform: uppercase;
+}
+
+.player-card-dead .player-avatar-badge {
+  background-color: var(--border-outline-variant);
+}
+
+.player-card-info-col {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.player-card-name {
+  font-family: var(--font-headline);
+  font-size: 20px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.player-voting-card:hover .player-card-name {
+  color: var(--color-primary);
+}
+
+.player-card-stats-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.player-card-stat {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-outline-variant);
+  background-color: var(--bg-container-low);
+  padding: 2px 6px;
+}
+
+.player-card-stat.border-stat {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+  background-color: rgba(197, 160, 89, 0.05);
+}
+
+.player-vote-action-btn {
+  background: transparent;
+  border: 1px solid var(--border-outline-variant);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px;
+  width: 100%;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.player-vote-action-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background-color: rgba(211, 47, 47, 0.05);
+}
+
+.player-vote-action-btn.voted-active {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #fff !important;
+}
+
+.player-card-dead {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Day Live Vote Tally block styling */
+.live-vote-tally-block {
+  background-color: var(--bg-container-low);
+  border-top: 1px solid var(--color-secondary);
+  padding: 24px;
+  box-shadow: var(--shadow-hard);
+  margin-top: 32px;
+}
+
+.tally-title-label {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.1em;
+}
+
+.tally-progress-bars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.tally-progress-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tally-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+
+.tally-target-name {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tally-votes-value {
+  color: var(--color-secondary);
+}
+
+.tally-progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-primary);
+}
+
+.tally-progress-fill {
+  height: 100%;
+  background-color: var(--color-secondary);
+  transition: width 0.3s ease;
+}
+
+/* Force Resolve Card */
+.host-force-block {
+  margin-top: 32px;
+  padding: 24px;
+  background-color: var(--bg-secondary);
+}
+
+.host-force-desc {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.host-force-btn {
+  background-color: var(--color-primary);
+  border: none;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px 24px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  transition: all 0.1s ease;
+}
+
+.host-force-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.host-force-btn:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 1);
+}
+
+/* ---------------------------------------------------- */
+/* NIGHT PHASE - MAFIA CONSOLE                          */
+/* ---------------------------------------------------- */
+.mafia-night-console {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mafia-header-block {
+  max-width: 800px;
+}
+
+.mafia-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mafia-specialization-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(211, 47, 47, 0.15);
+  border: 1px solid rgba(211, 47, 47, 0.4);
+  padding: 4px 10px;
+  margin-bottom: 12px;
+}
+
+.mafia-cross-icon {
+  color: var(--color-primary);
+  font-size: 14px;
+}
+
+.mafia-spec-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.mafia-title-main {
+  font-family: var(--font-headline);
+  font-size: 32px;
+  color: var(--text-primary);
+}
+
+.mafia-subtitle-desc {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.mafia-targets-count-badge {
+  background-color: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 6px 12px;
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.mafia-acquisition-pulse-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(211, 47, 47, 0.12);
+  border: 1px solid rgba(211, 47, 47, 0.35);
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-primary);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  animation: mafiaBloodPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes mafiaBloodPulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.mafia-targets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.mafia-target-card {
+  background-color: var(--bg-secondary);
+  border-left: 4px solid var(--border-outline-variant);
+  padding: 16px;
+  box-shadow: var(--shadow-hard);
+  position: relative;
+}
+
+.mafia-target-card.target-marked-active {
+  border-left-color: var(--color-primary);
+}
+
+.marked-corner-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--color-primary);
+  opacity: 0.5;
+}
+
+.mafia-card-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.mafia-card-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mafia-avatar-frame {
+  width: 48px;
+  height: 48px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-outline-variant);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mafia-target-info-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.mafia-target-name {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mafia-target-card:hover .mafia-target-name {
+  color: var(--color-primary);
+}
+
+.mafia-target-desc {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.mafia-target-votes-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-primary);
+  background-color: rgba(211, 47, 47, 0.15);
+  border: 1px solid rgba(211, 47, 47, 0.3);
+  padding: 2px 6px;
+  margin-top: 6px;
+  align-self: flex-start;
+  display: inline-block;
+  font-weight: bold;
+}
+
+.mafia-bar-fill {
+  background-color: var(--color-primary) !important;
+}
+
+.mafia-target-index-id {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-primary);
+  opacity: 0.5;
+}
+
+.mafia-action-container {
+  width: 100%;
+}
+
+.mafia-eliminate-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border-outline-variant);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.mafia-eliminate-btn:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.mafia-marked-block {
+  width: 100%;
+  background-color: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px;
+  letter-spacing: 0.1em;
+}
+
+
+/* ─── MAFIA NIGHT: RAIN + BULLET SCENE ─────────────────────────── */
+/* Matches the Doctor EKG strip: top 100px, 160px tall               */
+.mafia-rain-scene {
+  position: absolute;
+  top: 100px;
+  left: 0;
+  right: 0;
+  height: 160px;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Individual rain drop — a thin vertical div, angled by skewX */
+.rain-drop {
+  position: absolute;
+  top: -150px;
+  width: 1.5px;
+  background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(174, 194, 224, 0.8) 30%,
+      rgba(200, 220, 255, 0.95) 55%,
+      rgba(174, 194, 224, 0.8) 80%,
+      transparent 100%);
+  transform: skewX(-10deg);
+  border-radius: 0 0 50% 50%;
+  animation: rainFallDrop linear infinite;
+}
+
+@keyframes rainFallDrop {
+  0% {
+    transform: translateY(0px) skewX(-10deg);
+  }
+
+  100% {
+    transform: translateY(500px) skewX(-10deg);
+  }
+}
+
+/* ─── BULLET LANES: 4 sequential shots at different heights ─────── */
+/* Shared bullet shape & glow */
+.cinematic-bullet {
+  position: absolute;
+  left: 0;
+  width: 280px;
+  height: 3px;
+  opacity: 0;
+  /* hidden by default — animation controls visibility */
+  border-radius: 0 2px 2px 0;
+  background: linear-gradient(to right,
+      transparent 0%,
+      rgba(120, 0, 0, 0.0) 5%,
+      rgba(180, 10, 10, 0.25) 30%,
+      rgba(220, 30, 10, 0.65) 58%,
+      rgba(255, 80, 20, 0.90) 76%,
+      rgba(255, 160, 60, 1.0) 88%,
+      rgba(255, 240, 200, 1.0) 96%,
+      rgba(255, 255, 255, 0.9) 100%);
+  filter:
+    drop-shadow(0 0 4px rgba(255, 60, 0, 0.95)) drop-shadow(0 0 12px rgba(200, 0, 0, 0.70)) drop-shadow(0 0 22px rgba(180, 0, 0, 0.40));
+  /* fill-mode:both applies 0% keyframe (opacity:0) during delay too */
+  animation: bulletFireCycle 12s linear infinite both;
+}
+
+
+/* Each lane at a different height, staggered by 3s */
+.bullet-lane-1 {
+  top: 15%;
+  animation-delay: 0s;
+}
+
+.bullet-lane-2 {
+  top: 42%;
+  animation-delay: 3s;
+}
+
+.bullet-lane-3 {
+  top: 68%;
+  animation-delay: 6s;
+}
+
+.bullet-lane-4 {
+  top: 85%;
+  animation-delay: 9s;
+}
+
+@keyframes bulletFireCycle {
+
+  /* 0–25% = first 2s: bullet flies left→right */
+  0% {
+    transform: translateX(-300px);
+    opacity: 0;
+  }
+
+  1% {
+    opacity: 1;
+  }
+
+  24% {
+    opacity: 1;
+  }
+
+  25% {
+    transform: translateX(1600px);
+    opacity: 0;
+  }
+
+  /* 25.1–100% = remaining 6s: invisible, reset to left */
+  25.1% {
+    transform: translateX(-300px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(-300px);
+    opacity: 0;
+  }
+}
+
+
+
+
+/* ---------------------------------------------------- */
+/* NIGHT PHASE - DOCTOR CONSOLE                         */
+/* ---------------------------------------------------- */
+.doctor-night-console {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.doctor-header-block {
+  max-width: 800px;
+}
+
+.doctor-specialization-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(0, 209, 255, 0.15);
+  border: 1px solid rgba(0, 209, 255, 0.4);
+  padding: 4px 10px;
+  margin-bottom: 12px;
+}
+
+.doctor-cross-icon {
+  color: var(--color-clinical-blue);
+  font-size: 14px;
+}
+
+.doctor-spec-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-clinical-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.doctor-title-main {
+  font-family: var(--font-headline);
+  font-size: 32px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.doctor-subtitle-desc {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+/* EKG background animation */
+.doctor-dynamic-ekg-bg {
+  position: absolute;
+  right: 0;
+  top: 100px;
+  width: 100%;
+  height: 160px;
+  opacity: 0.08;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.doctor-ekg-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.doctor-ekg-path {
+  stroke: var(--color-clinical-blue);
+  fill: none;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: doctorHeartbeat 5s linear infinite;
+}
+
+/* Flatline — steady horizontal line when doctor is dead */
+.doctor-ekg-path-flatline {
+  stroke: rgba(0, 209, 255, 0.35);
+  fill: none;
+  stroke-dasharray: 12 8;
+  animation: flatlinePulse 3s ease-in-out infinite;
+}
+
+@keyframes flatlinePulse {
+
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes doctorHeartbeat {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Doctor dead console overlay */
+.doctor-console-dead {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.doctor-console-dead .doctor-protect-btn,
+.doctor-console-dead .doctor-asset-card {
+  pointer-events: none;
+}
+
+/* Flatline dead banner across top of doctor console */
+.doctor-dead-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(180, 0, 0, 0.2);
+  border: 1px solid rgba(255, 60, 60, 0.4);
+  border-radius: 8px;
+  color: rgba(255, 100, 100, 0.95);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 10px 16px;
+  margin-bottom: 4px;
+}
+
+.doctor-dead-banner .material-symbols-outlined {
+  font-size: 20px;
+  color: rgba(255, 60, 60, 0.9);
+  animation: flatlineIconPulse 2s ease-in-out infinite;
+}
+
+@keyframes flatlineIconPulse {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* OFFLINE block on dead doctor — replaces PROTECT button */
+.doctor-offline-state-block {
+  width: 100%;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: rgba(255, 60, 60, 0.5);
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 60, 60, 0.15);
+  margin-top: 8px;
+}
+
+.doctor-card-title-sm {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-clinical-blue);
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+
+.doctor-card-title-sm.text-clinical {
+  color: var(--color-clinical-blue);
+}
+
+/* Doctor full-width asset grid */
+.doctor-full-width-container {
+  margin-top: 8px;
+}
+
+.doctor-right-column-title {
+  font-family: var(--font-headline);
+  font-size: 20px;
+  color: var(--color-clinical-blue);
+  border-bottom: 1px solid rgba(0, 209, 255, 0.2);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.doctor-assets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.doctor-asset-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-outline-variant);
+  padding: 12px;
+  box-shadow: var(--shadow-hard);
+  transition: border-color 0.2s ease;
+}
+
+.doctor-asset-card:hover {
+  border-color: var(--color-clinical-blue);
+}
+
+.asset-profile-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.asset-avatar-box {
+  width: 48px;
+  height: 48px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-outline-variant);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.asset-profile-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.asset-profile-name {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.asset-profile-threat {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.doctor-protect-btn {
+  width: 100%;
+  background-color: var(--color-clinical-blue);
+  border: none;
+  color: var(--bg-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.doctor-protect-btn:hover {
+  background-color: var(--color-clinical-cyan);
+}
+
+.doctor-protected-state-block {
+  width: 100%;
+  background-color: var(--color-clinical-blue);
+  color: var(--bg-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px;
+  letter-spacing: 0.1em;
+}
+
+.doctor-logistics-full-wrapper {
+  margin-top: 24px;
+}
+
+.doctor-logistics-card {
+  padding: 20px;
+  background-color: rgba(0, 209, 255, 0.03);
+  border: 1px solid rgba(0, 209, 255, 0.2);
+  box-shadow: var(--shadow-hard);
+}
+
+.stash-logistics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stash-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stash-labels-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.stash-item-name {
+  color: var(--text-primary);
+}
+
+.stash-item-val {
+  color: var(--color-clinical-blue);
+  font-weight: 700;
+}
+
+.stash-progress-track {
+  width: 100%;
+  height: 6px;
+  background-color: var(--bg-primary);
+}
+
+.stash-progress-fill {
+  height: 100%;
+  background-color: var(--color-clinical-blue);
+}
+
+/* ---------------------------------------------------- */
+/* NIGHT PHASE - CITIZEN CONSOLE                        */
+/* ---------------------------------------------------- */
+.citizen-night-console {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.citizen-header-block {
+  max-width: 800px;
+}
+
+.citizen-specialization-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(233, 193, 118, 0.1);
+  border: 1px solid rgba(233, 193, 118, 0.3);
+  padding: 4px 10px;
+  margin-bottom: 12px;
+}
+
+.citizen-sleep-icon {
+  color: var(--color-secondary);
+  font-size: 14px;
+}
+
+.citizen-spec-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.citizen-title-main {
+  font-family: var(--font-headline);
+  font-size: 32px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.citizen-subtitle-desc {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.citizen-status-sleeping-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-outline-variant);
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  padding: 32px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 320px;
+  z-index: 10;
+}
+
+.sleeping-card-feed-label {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(233, 193, 118, 0.4);
+  animation: sleepingPulse 4s infinite ease-in-out;
+}
+
+@keyframes sleepingPulse {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.1;
+  }
+}
+
+.sleeping-card-center-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-grow: 1;
+  padding: 40px 0;
+}
+
+.sleeping-clock-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid rgba(233, 193, 118, 0.3);
+  background-color: rgba(233, 193, 118, 0.04);
+  padding: 12px 24px;
+}
+
+.sleeping-clock-icon {
+  font-size: 36px;
+  color: var(--color-secondary);
+  animation: alarmTicking 1s ease-in-out infinite alternate;
+}
+
+@keyframes alarmTicking {
+  from {
+    transform: rotate(-5deg);
+  }
+
+  to {
+    transform: rotate(5deg);
+  }
+}
+
+.sleeping-countdown-timer {
+  display: flex;
+  flex-direction: column;
+}
+
+.countdown-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.countdown-digits {
+  font-family: var(--font-headline);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
+
+.sleeping-label-block {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sleeping-main-title {
+  font-family: var(--font-headline);
+  font-size: 28px;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+
+.sleeping-subtitle-status {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-secondary);
+  letter-spacing: 0.2em;
+}
+
+.sleeping-progress-bar-stepper {
+  width: 256px;
+  height: 2px;
+  background-color: var(--bg-container-highest);
+  position: relative;
+  overflow: hidden;
+}
+
+.stepper-fill-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 33%;
+  background-color: rgba(233, 193, 118, 0.3);
+}
+
+.sleeping-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  border-top: 1px solid var(--border-outline-variant);
+  padding-top: 20px;
+  opacity: 0.8;
+}
+
+.sleeping-stat-box {
+  text-align: center;
+}
+
+.stat-label-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.stat-metric-val {
+  font-family: var(--font-headline);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin-top: 2px;
+  display: block;
+}
+
+.citizen-bottom-row-grid {
+  display: grid;
+  grid-template-columns: 8fr 4fr;
+  gap: 24px;
+  margin-top: 24px;
+  z-index: 10;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .citizen-bottom-row-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.citizen-logs-card {
+  padding: 20px;
+  background-color: var(--bg-secondary);
+}
+
+.citizen-card-title-sm {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+
+.citizen-card-title-sm.text-sleep {
+  color: var(--color-secondary);
+}
+
+.street-logs-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-item-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  border-bottom: 1px solid var(--bg-container-high);
+  padding-bottom: 4px;
+}
+
+.log-timestamp {
+  color: var(--text-muted);
+  margin-right: 8px;
+}
+
+.log-event-text {
+  color: var(--text-primary);
+}
+
+.log-waiting {
+  font-style: italic;
+  opacity: 0.5;
+  border: none;
+}
+
+.citizen-locked-actions-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.citizen-locked-action-btn {
+  flex-grow: 1;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-outline-variant);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.btn-lock-icon {
+  font-size: 16px;
+}
+
+/* Vignette pulse for sleeping citizen */
+.sleeping-breathing-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9);
+  animation: sleepingVignettePulse 6s ease-in-out infinite;
+}
+
+@keyframes sleepingVignettePulse {
+
+  0%,
+  100% {
+    box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.95);
+    opacity: 0.9;
+  }
+
+  50% {
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.7);
+    opacity: 0.5;
+  }
+}
+
+/* Sleep Wave background animation */
+.citizen-dynamic-sleep-bg {
+  position: absolute;
+  right: 0;
+  top: 100px;
+  width: 100%;
+  height: 160px;
+  opacity: 0.08;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.citizen-sleep-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.citizen-sleep-path {
+  stroke: var(--color-secondary);
+  fill: none;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: citizenSleepWave 12s linear infinite;
+}
+
+@keyframes citizenSleepWave {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------------------------------------------------- */
+/* CHAT SIDEBAR PANEL                                   */
+/* ---------------------------------------------------- */
+.gameplay-chat-sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  background-color: var(--bg-secondary);
+  height: 100%;
+  min-height: 480px;
+}
+
+.chat-panel-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-outline-variant);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.chat-panel-title-text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.05em;
+}
+
+.phase-day .chat-panel-title-text {
+  color: var(--color-secondary);
+}
+
+.chat-encrypted-online-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  background: rgba(211, 47, 47, 0.08);
+  padding: 2px 6px;
+}
+
+.chat-messages-scroll-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-right: 4px;
+}
+
+.chat-feed-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.chat-bubble-row {
+  display: flex;
+  width: 100%;
+}
+
+.chat-bubble-row.msg-align-me {
+  justify-content: flex-end;
+}
+
+.chat-bubble-row.msg-align-other {
+  justify-content: flex-start;
+}
+
+.chat-bubble-body {
+  max-width: 85%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid var(--border-outline);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.phase-day .chat-bubble-body {
+  border-left-color: var(--color-secondary);
+}
+
+.msg-align-me .chat-bubble-body {
+  border-left-color: var(--color-primary);
+}
+
+.bubble-style-ghost {
+  background-color: rgba(142, 142, 147, 0.08) !important;
+  border-left-color: #8e8e93 !important;
+}
+
+.bubble-style-mafia {
+  background-color: rgba(211, 47, 47, 0.08) !important;
+  border-left-color: var(--color-primary) !important;
+}
+
+.chat-bubble-sender-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-secondary);
+}
+
+.msg-align-me .chat-bubble-sender-name {
+  color: var(--color-primary);
+}
+
+.chat-bubble-content-text {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.chat-bubble-timestamp {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  align-self: flex-end;
+  opacity: 0.6;
+}
+
+/* Chat Blocked placeholder */
+.chat-input-blocked-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-outline-variant);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Chat Input form */
+.chat-input-form-syndicate {
+  border-top: 1px solid var(--border-outline-variant);
+  padding-top: 16px;
+  background-color: var(--bg-secondary);
+}
+
+.chat-input-relative-container {
+  position: relative;
+}
+
+.chat-input-placeholder-label {
+  position: absolute;
+  top: -14px;
+  left: 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+}
+
+.phase-day .chat-input-placeholder-label {
+  color: var(--color-secondary);
+}
+
+.chat-console-input-field {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-outline-variant);
+  padding: 10px 32px 10px 0;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+}
+
+.chat-console-input-field:focus {
+  border-bottom-color: var(--color-primary);
+}
+
+.phase-day .chat-console-input-field:focus {
+  border-bottom-color: var(--color-secondary);
+}
+
+.chat-console-send-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.phase-day .chat-console-send-btn {
+  color: var(--color-secondary);
+}
+
+.chat-console-send-btn:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.chat-console-send-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: translateY(-50%);
+}
+
+/* ---------------------------------------------------- */
+/* NEW STYLES: DULLING, WIN SCREENS & PURE CSS CCTV      */
+/* ---------------------------------------------------- */
+
+.card-dulled {
+  opacity: 0.35 !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  filter: grayscale(0.8);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.player-vote-action-btn:disabled,
+.mafia-eliminate-btn:disabled,
+.doctor-protect-btn:disabled {
+  opacity: 0.25 !important;
+  background-color: transparent !important;
+  border-color: var(--border-outline-variant) !important;
+  color: var(--text-muted) !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+/* Pure CSS Surveillance Feed */
+.surveillance-css-feed {
+  position: relative;
+  background-color: #050b07 !important;
+  /* retro matrix green-black */
+  border: 1px solid rgba(0, 209, 255, 0.3) !important;
+  box-shadow: inset 0 0 20px rgba(0, 209, 255, 0.2);
+  overflow: hidden;
+}
+
+.citizen-cctv-feed {
+  border-color: var(--border-outline-variant) !important;
+  box-shadow: inset 0 0 20px rgba(171, 137, 133, 0.1) !important;
+  background-color: #060608 !important;
+}
+
+.feed-noise-overlay {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg,
+      rgba(0, 209, 255, 0.03),
+      rgba(0, 209, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 2px);
+  pointer-events: none;
+  animation: noiseScanline 10s linear infinite;
+  z-index: 2;
+}
+
+.citizen-cctv-feed .feed-noise-overlay {
+  background: repeating-linear-gradient(0deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 2px);
+}
+
+@keyframes noiseScanline {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 0 100%;
+  }
+}
+
+.feed-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 209, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 209, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.citizen-cctv-feed .feed-grid-overlay {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+.feed-corners {
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(0, 209, 255, 0.15);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.feed-corners::before,
+.feed-corners::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: rgba(0, 209, 255, 0.4);
+  border-style: solid;
+}
+
+.feed-corners::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+
+.feed-corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+.citizen-cctv-feed .feed-corners {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.citizen-cctv-feed .feed-corners::before,
+.citizen-cctv-feed .feed-corners::after {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.feed-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.feed-crosshair::before,
+.feed-crosshair::after {
+  content: '';
+  position: absolute;
+  background-color: rgba(0, 209, 255, 0.3);
+}
+
+.feed-crosshair::before {
+  top: 14px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+}
+
+.feed-crosshair::after {
+  top: 0;
+  left: 14px;
+  width: 2px;
+  height: 30px;
+}
+
+.citizen-cctv-feed .feed-crosshair::before,
+.citizen-cctv-feed .feed-crosshair::after {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.feed-dynamic-text-log {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(0, 209, 255, 0.7);
+  z-index: 4;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.citizen-cctv-feed .feed-dynamic-text-log {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.mafia-avatar-icon,
+.asset-avatar-icon {
+  font-size: 32px !important;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.mafia-target-card:hover .mafia-avatar-icon {
+  color: var(--color-primary);
+  opacity: 0.9;
+}
+
+.doctor-asset-card:hover .asset-avatar-icon {
+  color: var(--color-clinical-blue);
+  opacity: 0.9;
+}
+
+/* Win Screens Styling */
+.win-screen-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  border-top: 4px solid var(--color-outline);
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-hard);
+  text-align: center;
+  min-height: 480px;
+}
+
+.mafia-win-theme {
+  border-top-color: var(--color-primary);
+  background: linear-gradient(180deg, rgba(211, 47, 47, 0.08) 0%, rgba(10, 10, 10, 0.95) 100%), var(--bg-secondary);
+}
+
+.citizens-win-theme {
+  border-top-color: var(--color-secondary);
+  background: linear-gradient(180deg, rgba(197, 160, 89, 0.08) 0%, rgba(10, 10, 10, 0.95) 100%), var(--bg-secondary);
+}
+
+.win-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--color-outline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  background: rgba(10, 10, 10, 0.8);
+}
+
+.mafia-win-theme .win-icon-wrapper {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 0 20px rgba(211, 47, 47, 0.2);
+}
+
+.citizens-win-theme .win-icon-wrapper {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+  box-shadow: 0 0 20px rgba(197, 160, 89, 0.2);
+}
+
+.win-glyph {
+  font-size: 40px !important;
+}
+
+.win-title-main {
+  font-family: var(--font-headline);
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+
+.mafia-win-theme .win-title-main {
+  color: var(--color-primary);
+  text-shadow: 0 0 10px rgba(211, 47, 47, 0.3);
+}
+
+.citizens-win-theme .win-title-main {
+  color: var(--color-secondary);
+  text-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+}
+
+.win-subtitle-desc {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 480px;
+  margin-bottom: 32px;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.win-details-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  background-color: rgba(10, 10, 10, 0.6);
+  border: 1px solid var(--border-outline-variant);
+  margin-bottom: 40px;
+}
+
+.mafia-win-theme .win-details-card {
+  border-color: rgba(211, 47, 47, 0.25);
+}
+
+.citizens-win-theme .win-details-card {
+  border-color: rgba(197, 160, 89, 0.25);
+}
+
+.win-card-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.win-result-text {
+  font-family: var(--font-headline);
+  font-size: 20px;
+  color: var(--text-primary);
+}
+
+.waiting-host-lobby {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.return-lobby-btn-syndicate {
+  background-color: var(--color-secondary) !important;
+  color: var(--bg-primary) !important;
+}
+
+.return-lobby-btn-syndicate:hover {
+  background-color: #dfba73 !important;
+}
+
+.dismiss-lobby-btn-syndicate {
+  background-color: transparent !important;
+  border: 1px solid var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+.dismiss-lobby-btn-syndicate:hover {
+  background-color: rgba(211, 47, 47, 0.1) !important;
+}
+
+/* Mafia Logistics & Weaponry Stash */
+.mafia-logistics-full-wrapper {
+  margin-top: 24px;
+}
+
+.mafia-logistics-card {
+  padding: 20px;
+  background-color: rgba(211, 47, 47, 0.03);
+  border: 1px solid rgba(211, 47, 47, 0.2);
+  box-shadow: var(--shadow-hard);
+}
+
+.mafia-fill {
+  background-color: var(--color-primary) !important;
+}
+
+/* Rain animation streaks */
+.rain-streak {
+  animation: rainFall 0.8s linear infinite;
+}
+
+.streak-1 {
+  animation-delay: 0s;
+}
+
+.streak-2 {
+  animation-delay: 0.2s;
+}
+
+.streak-3 {
+  animation-delay: 0.4s;
+}
+
+.streak-4 {
+  animation-delay: 0.6s;
+}
+
+.streak-5 {
+  animation-delay: 0.15s;
+}
+
+@keyframes rainFall {
+  0% {
+    transform: translate(15px, -30px);
+  }
+
+  100% {
+    transform: translate(-15px, 90px);
+  }
+}
